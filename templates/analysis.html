@@ -1,0 +1,90 @@
+{%- extends "layouts/main.html" %}
+{%- block title %}Analysis{%- endblock %}
+
+{%- block precontent %}
+<nav class="d-flex flex-column flex-shrink-0" style="width: 9rem;">
+  <ul class="list-unstyled ps-0">
+    {#- TODO: Make a list of links to other sessions #}
+    <li class="mb-1">
+    <input class="form-control-plaintext" type="text" placeholder="Session..." name="session-id" id="session-id" value="{{ session.id }}" data-cr-session-id="{{ session.id }}">
+    </li>
+
+    <li class="mb-1">
+    <button class="btn btn-toggle align-items-center collapsed side-nav" data-bs-toggle="collapse" data-bs-target="#cubes-collapse" aria-expanded="false" title="Puzzle Type" type="button">
+      <i class="bi bi-box-fill"></i> Puzzles
+    </button>
+    <div class="collapse" id="cubes-collapse" style="">
+      <fieldset class="form-group">
+        <!-- 2x2x2 Twisting Cube -->
+        <div class="form-check">
+        <input class="form-check-input ms-2" type="radio" name="puzzle" id="cube222" value="cube222" data-cr-puzzle="cube222" checked title="2x2x2 cube">
+        <label class="form-check-label ms-2" for="cube222">
+          <i class="bi bi-grid-fill"></i>
+        </label>
+        </div>
+
+        <!-- 3x3x3 Twisting Cube -->
+        <div class="form-check">
+        <input class="form-check-input ms-2" type="radio" name="puzzle" id="cube333" value="cube333" data-cr-puzzle="cube333" title="3x3x3 standard cube">
+        <label class="form-check-label ms-2" for="cube333">
+          <i class="bi bi-grid-3x3-gap-fill"></i>
+        </label>
+        </div>
+
+        <!-- 3x3x3 Twisting Cube -->
+        <div class="form-check">
+        <input class="form-check-input ms-2" type="radio" name="puzzle" id="cube444" value="cube444" data-cr-puzzle="cube444" title="4x4x4 standard cube">
+        <label class="form-check-label ms-2" for="cube444">
+          <i class="bi bi-4-square-fill"></i>
+        </label>
+        </div>
+        {#- TODO: Add more puzzle types #}
+      </fieldset>
+    </div>
+    </li>
+    {#- TODO: Add more options to this side panel #}
+  </ul>
+</nav>
+{%- endblock precontent %}
+
+{%- block maincontent %}
+<h1>Analysis</h1>
+
+{#- set the dividers to spaces #}
+<nav style="--bs-breadcrumb-divider: ' ';" aria-label="breadcrumb" title="Cube state" class="text-info">
+  <ol class="breadcrumb" id="cenobc" data-ceno-bc="ol">
+    <li class="breadcrumb-item disabled" data-ceno-bc="0">&ndash;</li>
+  </ol>
+</nav>
+
+<!-- CENO -->
+<div class="row">
+  <div class="col">
+    <div class="input-group" title="Scramble">
+      <input name="scramble" type="text" placeholder="Enter or generate a scramble..." class="form-control fw-bold" id="scramble-input">
+      <button class="btn btn-outline-info" type="button" title="Get random scramble from the server"><i class="bi bi-arrow-counterclockwise" onclick="random_scramble(this, 'scramble-input');"></i></button>
+    </div>
+  </div>
+</div>
+
+<div class="row">
+  <!-- input form -->
+  <div class="col">
+    <div class="mb-3">
+      <textarea name="moves" type="text" placeholder="Moves..." rows="12" class="form-control-plaintext fw-bold"></textarea>
+    </div>
+  </div>
+
+  <!-- output area -->
+  <div class="col">
+  </div>
+</div>
+{#- TODO: Add fields for time, tags, etc. #}
+{%- endblock maincontent %}
+
+{%- block postcontent %}
+  <p>
+  <strong>TODO&colon;</strong>
+  Add a list of previous solutions in this session
+  </p>
+{%- endblock postcontent %}

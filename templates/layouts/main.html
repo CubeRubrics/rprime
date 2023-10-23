@@ -1,0 +1,141 @@
+<!doctype html>
+<html xmlns="http://www.w3.org/1999/xhtml" lang="en" data-bs-theme="dark">
+  <head>
+    <!-- Welcome to Cube Rubrics -->
+    {%- block head %}
+    <meta charset="utf-8">
+    <title>{% block title %}{% endblock title %} &middot; Cube Rubrics</title>
+    <meta name="author" content="Cube Rubrics Team">
+    <meta name="description" content="Developing new scoring guides for the assessing and articulating the performance of Cubes">
+
+    {%- block styling %}
+    <link rel="icon" type="image/x-icon" href="/favicon.ico">
+
+    <!-- Bootstrap bundle -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap/5.3.2/js/bootstrap.bundle.js" crossorigin="anonymous" referrerpolicy="no-referrer"></script>
+
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/bootswatch/5.3.2/zephyr/bootstrap.min.css" crossorigin="anonymous" referrerpolicy="no-referrer"/>
+
+    <!-- icons -->
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.0/font/bootstrap-icons.css">
+
+    <style>
+      nav.navbar {
+        margin-bottom: 1rem;
+      }
+      {# Center the navbar logo #}
+      @media (min-width: 768px) {
+        .navbar-brand.abs {
+          position: absolute;
+          width: auto;
+          left: 50%;
+          transform: translateX(-50%);
+          text-align: center;
+          }
+      }
+
+      {# ensure footer stays at bottom #}
+      html {
+          min-height: 100%;
+      }
+
+      .collapsed.side-nav::before {
+        content: '\002B ';
+        display: inline-block;
+      }
+
+      .side-nav::before {
+        content: '\2212 ';
+        display: inline-block;
+      }
+    </style>
+    {%- endblock styling %}
+    {%- endblock head %}
+  </head>
+
+  <body>
+    {%- block body %}
+    <!-- navbar -->
+    {%- block navbar %}
+    <nav class="navbar navbar-expand-md bg-body-tertiary">
+      <div class="container-fluid">
+        <!-- brand/logo -->
+        <a class="navbar-brand abs" href="/" title="Cube Rubrics - Home">
+          <img src="/static/img/logo.png" style="max-height: 50px; max-width:500px;" alt="Cube Rubrics logo"/>
+        </a>
+
+        <button class="navbar-toggler ms-auto" type="button" data-bs-toggle="collapse" data-bs-target="#navbarMain" aria-controls="navbarMain" aria-expanded="false" aria-label="Toggle navigation">
+          <span class="navbar-toggler-icon"></span>
+        </button>
+
+        <!-- collapsible section -->
+        <div class="navbar-collapse collapse" id="navbarMain">
+          <!-- start: before logo (left) -->
+          <ul class="navbar-nav">
+            {% block navleft %}
+            <li class="nav-item">
+              <a class="nav-link" href="/analysis" title="Study scrambles, solutions and algorithms">Analysis</a>
+            </li>
+            <li class="nav-item">
+              <a class="nav-link" href="/about">About</a>
+            </li>
+            {% endblock navleft %}
+          </ul>
+
+          <ul class="navbar-nav ms-auto">
+            {#- TODO: Make these variable #}
+            <!-- Email -->
+            <li class="nav-item">
+              <a class="nav-link" href="mailto:info@cuberubrics.org" title="Email us at info@cuberubrics.org"><i class="bi bi-envelope-at"></i></a>
+            </li>
+
+            <!-- RSS -->
+            <li class="nav-item">
+              {#- TODO: rss feed proper #}
+              <a class="nav-link disabled" href="/feed.xml" disabled><i class="bi bi-rss"></i></a>
+            </li>
+          </ul>
+        </div>
+      </div>
+    </nav>
+    {%- endblock navbar %}
+
+    <main>
+      <!-- content -->
+      {%- block content %}
+      <div class="container-fluid">
+        {#-
+          NOTE: For the 3-column layout, insert the content section by section with "pre-", "main-" and "postcontent", otherwise overwrite all this with "content"
+        #}
+        <div class="row">
+          <div class="col-md-2">
+            {#- Lefthand sidebar/top of page bar on phones #}
+            {%- block precontent %}
+            {%- endblock %}
+          </div>
+
+          <!-- content -->
+          <div class="col-md">
+            {#- Centered/main content #}
+            {%- block maincontent %}
+            {%- endblock %}
+          </div>
+
+        <div class="col-md-2">
+          {#- Righthand sidebar/second bar on phones #}
+          {%- block postcontent %}
+          {%- endblock %}
+        </div>
+      </div>
+      {%- endblock content %}
+    </main>
+
+    <!-- footer -->
+    <footer>
+      {%- block footer %}
+      <!-- TODO: Add proper footer -->
+      {%- endblock footer %}
+    </footer>
+    {%- endblock body %}
+  </body>
+</html>
