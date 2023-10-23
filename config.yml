@@ -1,0 +1,21 @@
+---
+name: Cube Rubrics
+
+urls:
+  - cuberubrics.org
+  - cuberubrics.com
+  - cuberubric.com
+  - rprime.xyz
+
+email:
+  admin: admin@cuberubrics.org
+  info: info@cuberubrics.org
+  team: team@cuberubrics.org
+
+team:
+  - name: Crystal Calvert
+    email: crystal@cuberubrics.org
+    title: Product Designer
+  - name: Patrick Ingham
+    email: patrick@cuberubrics.org
+    title: Senior Developer
