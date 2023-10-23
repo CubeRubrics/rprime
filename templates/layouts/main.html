@@ -60,8 +60,8 @@
     <nav class="navbar navbar-expand-md bg-body-tertiary">
       <div class="container-fluid">
         <!-- brand/logo -->
-        <a class="navbar-brand abs" href="/" title="Cube Rubrics - home">
-          <img src="/static/img/logo.png" style="max-height: 50px; max-width:500px;"/>
+        <a class="navbar-brand abs" href="/" title="Cube Rubrics - Home">
+          <img src="/static/img/logo.png" style="max-height: 50px; max-width:500px;" alt="Cube Rubrics logo"/>
         </a>
 
         <button class="navbar-toggler ms-auto" type="button" data-bs-toggle="collapse" data-bs-target="#navbarMain" aria-controls="navbarMain" aria-expanded="false" aria-label="Toggle navigation">
@@ -83,14 +83,16 @@
           </ul>
 
           <ul class="navbar-nav ms-auto">
+            {#- TODO: Make these variable #}
             <!-- Email -->
             <li class="nav-item">
-              <a class="nav-link" href="mailto:{{ info_email_addr }}" title="Email us at {{ info_email_addr }}"><i class="bi bi-envelope-at"></i></a>
+              <a class="nav-link" href="mailto:info@cuberubrics.org" title="Email us at info@cuberubrics.org"><i class="bi bi-envelope-at"></i></a>
             </li>
 
             <!-- RSS -->
             <li class="nav-item">
-              <a class="nav-link" href="/feed.xml" title="Subscribe to our RSS"><i class="bi bi-rss"></i></a>
+              {#- TODO: rss feed proper #}
+              <a class="nav-link disabled" href="/feed.xml" disabled><i class="bi bi-rss"></i></a>
             </li>
           </ul>
         </div>
