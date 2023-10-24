@@ -98,51 +98,67 @@ def check_login(username: str, pw_plain: str):
 
     pw_stored = db.get_db().hget(uk, 'pw')
     if pw_stored is None:
-        pw_stored = b''
-        s = b''
+        logger.warning(f'No password found for username "{username}"')
+        time.sleep(0.01)
+        return False
+
     else:
         s = db.get_db().hget(uk, 's')
-
-    pw = bcrypt.hashpw(pw_b, s)
-    return pw == pw_stored
+        pw = bcrypt.hashpw(pw_b, s)
+        return pw == pw_stored
 
 @app.route('/login/', methods=['GET', 'POST', 'PUT'])
 def login():
     vali = None
     if request.method == 'POST':
-        username = str(request.form.get('username')).strip().lower()
-        # FIXME: Filter out any non-standard characters
-
+        # TODO: move all of this to WTForms
+        username = str(request.form.get('username')).strip()
         pw_raw = request.form.get('password')
-        if check_login(username, pw_raw):
-            print('Valid credentials for', username)
-            session['username'] = username
-            db.get_db().hset(f'user:{username}', 'lastlogin', time.time())
-            if request.args:
-                next_url = request.args.get('next')
-                if next_url:
-                    print('Continuing to next link:', next_url)
-                    return redirect(request.args.get('next'))
+
+        vali = {'username': username, 'password': pw_raw}
+
+        # FIXME: Not a longterm solution to getting DOS'd 
+        time.sleep(0.1)
+
+        # FIXME: Filter out any non-standard characters
+        if len(username) < 3:
+            flash(f'Usernames must be at least 3 (valid) characters long', 'warning')
+
+        else:
+            if check_login(username, pw_raw):
+                print('Valid credentials for', username)
+                flash(f'Now logged in as {username}', 'success')
+                session['username'] = username
+                db.get_db().hset(f'user:{username}', 'lastlogin', time.time())
+                if request.args:
+                    next_url = request.args.get('next')
+                    if next_url:
+                        print('Continuing to next link:', next_url)
+                        return redirect(request.args.get('next'))
+                    else:
+                        print('No next link, sending to /')
+                        return redirect(url_for('index'))
                 else:
-                    print('No next link, sending to /')
                     return redirect(url_for('index'))
             else:
-                return redirect(url_for('index'))
-        else:
-            print('invalid credentials for', username)
-            vali = {'username': username, 'password': pw_raw}
+                print('invalid credentials for', username)
 
     return render_template('login.html', r=vali)
 
 @app.route('/logout/')
-@login_required
 def logout():
-    username = session['username']
+    username = session.get('username')
+    if username is None:
+        flash('You were not logged in', 'info')
+        return redirect(url_for('index'))
+
     uk = f'user:{username}'
     print('Logging out', username)
     print(g.user)
     db.get_db().hset(uk, 'lastlogout', time.time())
     session.clear()
+    flash(f'Logged out from {username}', 'success')
+
     return redirect(url_for('index'))
 
 @app.route('/analysis/', methods=['GET', 'POST', 'PUT', 'DELETE'])

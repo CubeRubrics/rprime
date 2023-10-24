@@ -100,6 +100,23 @@
     </nav>
     {%- endblock navbar %}
 
+    <!-- messages -->
+    <div class="d-flex justify-content-center mb-1" id="flash-messages">
+      {%- with messages = get_flashed_messages(with_categories=true) %}
+      {%- if messages %}
+      {%- for c, m in messages %}
+      <!-- {{ c }}: {{ m }}-->
+      <div class="alert alert-dismissible alert-{{ c }}">
+        <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+        <div id="flash-message-{{ loop.index }}">{{ m|safe }}</div>
+      </div>
+      {%- endfor %}
+      {%- else %}
+      <!-- no messages -->
+      {%- endif %}
+      {%- endwith %}
+    </div>
+
     <main>
       <!-- content -->
       {%- block content %}
