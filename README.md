@@ -22,3 +22,9 @@ and activate it
 if necessary, update your pip requirements
 
 `python3 -m pip install -r requirements.txt --upgrade`
+
+### Launching server
+
+`cd ..`
+
+`flask --app rprime run --debug`
