@@ -99,24 +99,7 @@
       </div>
     </nav>
     {%- endblock navbar %}
-
-    <!-- messages -->
-    <div class="d-flex justify-content-center mb-1" id="flash-messages">
-      {%- with messages = get_flashed_messages(with_categories=true) %}
-      {%- if messages %}
-      {%- for c, m in messages %}
-      <!-- {{ c }}: {{ m }}-->
-      <div class="alert alert-dismissible alert-{{ c }}">
-        <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
-        <div id="flash-message-{{ loop.index }}">{{ m|safe }}</div>
-      </div>
-      {%- endfor %}
-      {%- else %}
-      <!-- no messages -->
-      {%- endif %}
-      {%- endwith %}
-    </div>
-
+    <!-- page body -->
     <main>
       <!-- content -->
       {%- block content %}
@@ -147,6 +130,34 @@
       {%- endblock content %}
     </main>
 
+    <!-- messages -->
+    <div class="container">
+      <div class="toast-container" id="server-messages">
+        {%- with messages = get_flashed_messages(with_categories=true) %}
+        {%- if messages %}
+        {%- for c, m in messages %}
+        <!-- {{ c }}: {{ m }}-->
+        <div class="toast" role="alert" aria-live="assertive" aria-atomic="true" data-bs-autohide="false">
+          <div class="toast-header">
+            {%- if c == 'message' %}
+            <strong class="me-auto">Message</strong>
+            {%- else %}
+            <strong class="me-auto text-{{ c }}">{{ c | title }}</strong>
+            {%- endif %}
+            <button type="button" class="btn-close" data-bs-dismiss="toast" aria-label="Close"></button>
+          </div>
+          <div class="toast-body">
+            {{ m }}
+          </div>
+        </div>
+        {%- endfor %}
+        {%- else %}
+        <!-- no messages -->
+        {%- endif %}
+        {%- endwith %}
+      </div>
+    </div>
+
     <!-- footer -->
     <footer>
       {%- block footer %}
@@ -154,5 +165,20 @@
       {%- endblock footer %}
     </footer>
     {%- endblock body %}
+
+    <script>
+      // enable tooltips everywhere 
+      var tooltipTriggerList = [].slice.call(document.querySelectorAll('[data-bs-toggle="tooltip"]'))
+      var tooltipList = tooltipTriggerList.map(function (tooltipTriggerEl) {
+        return new bootstrap.Tooltip(tooltipTriggerEl)
+      })
+
+      // show toasts
+      var toastElList = [].slice.call(document.querySelectorAll('.toast'))
+      var toastList = toastElList.map(function (toastEl) {
+        return new bootstrap.Toast(toastEl)
+      })
+      toastList.forEach(toast => toast.show())
+    </script>
   </body>
 </html>

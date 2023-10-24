@@ -85,7 +85,7 @@ def load_logged_in_user():
 def index():
     print(request.headers)
     if 'username' in session:
-        print('CubeRubrics User:', session['username'])
+        username = session['username']
     else:
         print('CubeRubrics User: NOT LOGGED IN')
 
@@ -127,7 +127,7 @@ def login():
         else:
             if check_login(username, pw_raw):
                 print('Valid credentials for', username)
-                flash(f'Now logged in as {username}', 'success')
+                flash(f'Now logged in as {username}. Hello!', 'success')
                 session['username'] = username
                 db.get_db().hset(f'user:{username}', 'lastlogin', time.time())
                 if request.args:
@@ -153,11 +153,9 @@ def logout():
         return redirect(url_for('index'))
 
     uk = f'user:{username}'
-    print('Logging out', username)
-    print(g.user)
     db.get_db().hset(uk, 'lastlogout', time.time())
     session.clear()
-    flash(f'Logged out from {username}', 'success')
+    flash(f'Logged out from {username}. Bye!', 'success')
 
     return redirect(url_for('index'))
 
