@@ -19,6 +19,7 @@ import bcrypt
 import click
 
 from flask import current_app, g
+import time
 
 host = 'localhost'
 port = 6379
@@ -43,15 +44,17 @@ def init_db():
     db.flushdb()
     db.set('runs', 0)
     print('\t* Set run count to zero')
-    db.hset('user:admin', 'logins', 0)
+
+    uk = 'user:admin'
+    db.hset(uk, 'logins', 0)
+    db.hset(uk, 'created', time.time())
     pw_plain = generate_plaintext_password()
     pw_b = pw_plain.encode('utf-8')
     salt = bcrypt.gensalt()
 
     pw_h = bcrypt.hashpw(pw_b, salt)
-
-    db.hset('user:admin', 's', salt)
-    db.hset('user:admin', 'pw', pw_h)
+    db.hset(uk, 's', salt)
+    db.hset(uk, 'pw', pw_h)
     print('\t* Created new admin account with password:', pw_plain)
 
 
