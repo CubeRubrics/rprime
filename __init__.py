@@ -83,11 +83,11 @@ def load_logged_in_user():
 
 @app.route('/')
 def index():
+    print(request.headers)
     if 'username' in session:
-        print('User:', session['username'])
-
+        print('CubeRubrics User:', session['username'])
     else:
-        print('User: NOT LOGGED IN')
+        print('CubeRubrics User: NOT LOGGED IN')
 
     return render_template('index.html')
 
