@@ -18,9 +18,8 @@ import datetime
 import random
 
 from flask import Flask, flash, redirect, render_template, request, session, g
-from flask import send_from_directory
-
-from . import dbays
+from flask import send_from_directory, url_for
+from functools import wraps
 
 def create_app():
     app = Flask(__name__)
@@ -37,18 +36,22 @@ app = create_app()
 app.config['DEBUG'] = True
 
 logger = app.logger
-# FIXME: Decorator not working, gah, see:
-# https://flask.palletsprojects.com/en/3.0.x/patterns/viewdecorators/
-def incr_page(f):
-    print('hi')
-    def check_f(*args, **kwargs):
-        print('f:', f)
-        print('f args:\t', *args)
-        print('f kwargs:\t', **kwargs)
-        return f(*args, **kwargs)
 
-    check_f.__name__ = f.__name__
-    return f
+from . import dbays
+
+# https://flask.palletsprojects.com/en/3.0.x/patterns/viewdecorators/
+def login_required(f):
+    @wraps(f)
+    def decorated_function(*args, **kwargs):
+        if 'user' in g:
+            if g.user is None:
+                return redirect(url_for('login', next=request.url))
+        else:
+            return redirect(url_for('login', next=request.url))
+
+        return f(*args, **kwargs)
+    return decorated_function
+
 
 @app.route('/')
 def index():
@@ -61,14 +64,29 @@ def index():
     return render_template('index.html')
 
 
+@app.route('/login/', methods=['GET', 'POST', 'PUT'])
+def login():
+    vali = None
+    if request.method == 'POST':
+        username = request.form.get('username')
+        pw_raw = request.form.get('password')
+        print(f'Logging in {username} with plaintext password {pw_raw}')
+        vali = {'username': username, 'password': pw_raw}
+
+    return render_template('login.html', r=vali)
+
+@app.route('/logout/')
+@login_required
+def logout():
+    return render_template('login.html', u=g.user)
+
 @app.route('/analysis/', methods=['GET', 'POST', 'PUT', 'DELETE'])
-@incr_page
 def analysis():
-    print(dbays.cache.get('analysis'))
     return render_template('analysis.html')
 
 
 @app.route('/api/')
+@login_required
 def api_root():
     return 'api v0'
 

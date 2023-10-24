@@ -12,11 +12,14 @@ You should have received a copy of the GNU Affero General Public License along w
 """
 import os
 import sys
-
+import click
 import redis
+import random, string
+import bcrypt
 
 host = 'localhost'
 port = 6379
+
 print('Initializing cache')
 cache = redis.Redis(host=host, port=port, db=0, decode_responses=True)
 
@@ -26,3 +29,30 @@ cache.incr('runs')
 
 print('Initializing security')
 sec = redis.Redis(host=host, port=port, db=1,  decode_responses=True)
+def gen_random_password(length=9):
+    letters = ''.join([x for x in string.ascii_lowercase] + [x for x in string.ascii_uppercase] + [x for x in string.digits])
+    return ''.join(random.choice(letters) for i in range(length))
+
+
+def init_db():
+    admin_account = sec.get('admin', 'logins')
+
+    if admin_account is None:
+        print('\t* Creating "admin" account')
+        username = 'admin'        
+        password = gen_random_password()
+
+        salt = bcrypt.gensalt()
+        password_b = password.encode('utf-8')
+
+        print(f'\t\tusername: "{username}", password: "{password}", salt: {salt}')
+        h = bcrypt.hashpw(password_b, salt)
+        print(f'\t\t\t{h}')
+    else:
+        print('\t* Existing "admin" account')
+        print(admin_account)
+
+@click.command('init-db')
+def init_db_command():
+    init_db()
+    click.echo('Initialized redis.')
