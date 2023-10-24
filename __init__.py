@@ -21,6 +21,8 @@ from flask import Flask, flash, redirect, render_template, request, session, g
 from flask import send_from_directory, url_for
 from functools import wraps
 
+import bcrypt
+
 def create_app():
     app = Flask(__name__)
 
@@ -29,15 +31,15 @@ def create_app():
     @app.route('/favicon.ico')
     def favicon():
         return send_from_directory('static', 'favicon.ico')
-
+    
+    from . import db
+    db.init_app(app)
     return app
 
 app = create_app()
 app.config['DEBUG'] = True
 
 logger = app.logger
-
-from . import dbays
 
 # https://flask.palletsprojects.com/en/3.0.x/patterns/viewdecorators/
 def login_required(f):
@@ -64,14 +66,31 @@ def index():
     return render_template('index.html')
 
 
+def check_login(username: str, pw_plain: str):
+    uk = f'user:{username}'
+    pw_b = str(pw_plain).encode('utf-8')
+
+    pw_stored = db.get_db().hget(uk, 'pw')
+    s = db.get_db().hget(uk, 's')
+
+    pw = bcrypt.hashpw(pw_b, s)
+    return pw == pw_stored
+
 @app.route('/login/', methods=['GET', 'POST', 'PUT'])
 def login():
     vali = None
     if request.method == 'POST':
-        username = request.form.get('username')
+        username = str(request.form.get('username')).strip().lower()
+        # FIXME: Filter out any non-standard characters
+
         pw_raw = request.form.get('password')
-        print(f'Logging in {username} with plaintext password {pw_raw}')
-        vali = {'username': username, 'password': pw_raw}
+        if check_login(username, pw_raw):
+            print('Valid credentials for', username)
+            g.user = username
+            return redirect(request.args.get('next', 'index'))
+        else:
+            print('invalid credentials for', username)
+            vali = {'username': username, 'password': pw_raw}
 
     return render_template('login.html', r=vali)
 
