@@ -15,10 +15,14 @@ import sys
 import yaml
 import logging
 import datetime
+import time
 import random
 
-from flask import Flask, flash, redirect, render_template, request, session
-from flask import send_from_directory
+from flask import Flask, flash, redirect, render_template, request, session, g
+from flask import send_from_directory, url_for
+from functools import wraps
+
+import bcrypt
 
 def create_app():
     app = Flask(__name__)
@@ -28,7 +32,9 @@ def create_app():
     @app.route('/favicon.ico')
     def favicon():
         return send_from_directory('static', 'favicon.ico')
-
+    
+    from . import db
+    db.init_app(app)
     return app
 
 app = create_app()
@@ -36,10 +42,108 @@ app.config['DEBUG'] = True
 
 logger = app.logger
 
+# https://flask.palletsprojects.com/en/3.0.x/patterns/viewdecorators/
+def login_required(f):
+    @wraps(f)
+    def decorated_function(*args, **kwargs):
+        print(request.base_url)
+        if 'user' in g:
+            if g.user is None:
+                return redirect(url_for('login', next=request.base_url))
+        else:
+            return redirect(url_for('login', next=request.base_url))
+
+        return f(*args, **kwargs)
+    return decorated_function
+
+@app.before_request
+def load_logged_in_user():
+    username = session.get('username')
+    if username is None:
+        g.user = None
+
+    else:
+        uk = f'user:{username}'
+        # NOTE: Every user should have a 'created' field now.
+        uc = db.get_db().hget(uk, 'created')
+        if uc is None:
+            print(f'Error, {uk} lacks a "created" key')
+
+        else:
+            session['username'] = username
+            _t = time.time()
+            # Load the user
+            db.get_db().hset(uk, 'accessed', _t)
+            d = {
+                    'created': uc,
+                    'name': username,
+                    'accessed': _t,
+                    }
+            g.user = d.copy()
+
 @app.route('/')
 def index():
+    print(request.headers)
+    if 'username' in session:
+        print('CubeRubrics User:', session['username'])
+    else:
+        print('CubeRubrics User: NOT LOGGED IN')
+
     return render_template('index.html')
 
+
+def check_login(username: str, pw_plain: str):
+    uk = f'user:{username}'
+    pw_b = str(pw_plain).encode('utf-8')
+
+    pw_stored = db.get_db().hget(uk, 'pw')
+    if pw_stored is None:
+        pw_stored = b''
+        s = b''
+    else:
+        s = db.get_db().hget(uk, 's')
+
+    pw = bcrypt.hashpw(pw_b, s)
+    return pw == pw_stored
+
+@app.route('/login/', methods=['GET', 'POST', 'PUT'])
+def login():
+    vali = None
+    if request.method == 'POST':
+        username = str(request.form.get('username')).strip().lower()
+        # FIXME: Filter out any non-standard characters
+
+        pw_raw = request.form.get('password')
+        if check_login(username, pw_raw):
+            print('Valid credentials for', username)
+            session['username'] = username
+            db.get_db().hset(f'user:{username}', 'lastlogin', time.time())
+            if request.args:
+                next_url = request.args.get('next')
+                if next_url:
+                    print('Continuing to next link:', next_url)
+                    return redirect(request.args.get('next'))
+                else:
+                    print('No next link, sending to /')
+                    return redirect(url_for('index'))
+            else:
+                return redirect(url_for('index'))
+        else:
+            print('invalid credentials for', username)
+            vali = {'username': username, 'password': pw_raw}
+
+    return render_template('login.html', r=vali)
+
+@app.route('/logout/')
+@login_required
+def logout():
+    username = session['username']
+    uk = f'user:{username}'
+    print('Logging out', username)
+    print(g.user)
+    db.get_db().hset(uk, 'lastlogout', time.time())
+    session.clear()
+    return redirect(url_for('index'))
 
 @app.route('/analysis/', methods=['GET', 'POST', 'PUT', 'DELETE'])
 def analysis():
@@ -47,7 +151,8 @@ def analysis():
 
 
 @app.route('/api/')
-def api_root():
+@login_required
+def api():
     return 'api v0'
 
 
