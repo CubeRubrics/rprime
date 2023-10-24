@@ -1,0 +1,29 @@
+{%- extends "layouts/main.html" %}
+
+{%- block content %}
+<div class="container">
+  {%- if u %}
+  {#- Logged in user #}
+
+  {%- else %}
+  {#- No user yet #}
+  <form method="POST" {% if r %}class="was-validated"{% else %}class=""{% endif %}>
+    <div class="form-group">
+      <legend>Login Information&colon;</legend>
+      <div class="form-floating mb-4">
+        <input type="text" class="form-control{% if r %} is-invalid{% endif %}" value="{{ r.username }}" id="username" name="username" placeholder="Username" >
+        <label for="username">Username</label>
+      </div>
+      <div class="form-floating mb-4">
+        <input type="password" class="form-control{% if r %} is-invalid{% endif %}" id="password" name="password" placeholder="Password" autocomplete="off" value="{{ r.password }}">
+        <label for="password">Password</label>
+      </div>
+      <input type="submit" value="Submit" class="btn btn-primary float-end">
+      {%- if r %}
+      <small id="feedback" class="form-text invalid-feedback">Invalid username/password</small>
+      {%- endif %}
+    </div>
+  </form>
+  {%- endif %}
+</div>
+{%- endblock %}
