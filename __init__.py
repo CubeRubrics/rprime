@@ -17,7 +17,7 @@ import logging
 import datetime
 import random
 
-from flask import Flask, flash, redirect, render_template, request, session
+from flask import Flask, flash, redirect, render_template, request, session, g
 from flask import send_from_directory
 
 from . import dbays
