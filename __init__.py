@@ -164,6 +164,7 @@ def analysis():
     return render_template('analysis.html')
 
 
+# TODO: make this a Blueprint
 @app.route('/api/')
 @login_required
 def api():
@@ -173,3 +174,4 @@ def api():
 @app.route('/about/')
 def about():
     return render_template('about.html')
+
