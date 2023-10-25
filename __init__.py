@@ -160,12 +160,3 @@ def api():
 def about():
     return render_template('about.html')
 
-
-@app.route('/posts/')
-def posts():
-    return render_template('posts.html')
-
-@app.route('/posts/{year}/{month}/{day}/{title}/')
-def post(year: str, month: str, day: str, title: str):
-    print(f'Finding post for {year}-{month}-{day}')
-    return render_template('post.html')
