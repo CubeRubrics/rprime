@@ -34,6 +34,16 @@
           }
       }
 
+      @media (min-width: 1200px) {
+        .diet-container{
+            .container;
+            max-width: 970px;
+        }
+      }
+
+      .nav-img {
+          font-size: 1.25rem !important
+      }
       {# ensure footer stays at bottom #}
       html {
           min-height: 100%;
@@ -86,13 +96,13 @@
             {#- TODO: Make these variable #}
             <!-- Email -->
             <li class="nav-item">
-              <a class="nav-link" href="mailto:info@cuberubrics.org" title="Email us at info@cuberubrics.org"><i class="bi bi-envelope-at"></i></a>
+              <a class="nav-link nav-img" href="mailto:info@cuberubrics.org" title="Email us at info@cuberubrics.org"><i class="bi bi-envelope-at"></i></a>
             </li>
 
             <!-- RSS -->
             <li class="nav-item">
               {#- TODO: rss feed proper #}
-              <a class="nav-link disabled" href="/feed.xml" disabled><i class="bi bi-rss"></i></a>
+              <a class="nav-link disabled nav-img" href="/feed.xml" disabled><i class="bi bi-rss"></i></a>
             </li>
           </ul>
         </div>
