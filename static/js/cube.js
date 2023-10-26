@@ -54,3 +54,30 @@ function load_modals() {
     console.log(modals);
     return modals;
 }
+
+
+function api_form_process(t) {
+    let r = {}
+    for (let i=0; i<t.length; i++) {
+        let e = t[i]
+        switch (e.tagName) {
+            default:
+                if (e.value && e.name) {
+                }
+        }
+        console.log('Element ', i, e, '\n- ', e.name, e.value)
+    }
+    return 0;
+}
+
+
+function api_form_submit(e) {
+    // prevent the submission
+    e.preventDefault();
+    // lock the button
+    e.submitter.disabled = true;
+    e.submitter.classList.add('disabled');
+    console.log('API form submitted!', e);
+    api_form_process(e.srcElement);
+    return 0;
+}

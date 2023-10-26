@@ -116,7 +116,7 @@
             <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
           </div>
           <div class="modal-body">
-            <form action="/api/v0/subscribe" method="GET" id="subscriptionForm">
+            <form action="/api/v0" method="PUT" id="subscriptionForm" onsubmit="api_form_submit(event);">
               <div class="form-group mb-3" title="required">
                 <p id="subscribeEmailInfo" class="form-text">
                   Subscriptions are free and any information shared with
