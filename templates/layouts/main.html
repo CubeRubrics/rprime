@@ -116,7 +116,7 @@
             <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
           </div>
           <div class="modal-body">
-            <form action="/api/subscribe" method="PUT" id="subscriptionForm">
+            <form action="/api/v0/subscribe" method="GET" id="subscriptionForm">
               <div class="form-group mb-3" title="required">
                 <p id="subscribeEmailInfo" class="form-text">
                   Subscriptions are free and any information shared with
@@ -127,19 +127,19 @@
                 </p>
                 <label for="subsemail" class="form-label">Email</label>
                 <small id="subscEmailRequired" class="form-text"><i class="bi bi-asterisk"></i></small>
-                <input type="email" name="subsemail" class="form-control" id="subsemail" aria-describedby="subscribeEmailInfo" placeholder="Enter email (required)"/>
+                <input type="email" name="subsemail" class="form-control" id="subsemail" aria-describedby="subscribeEmailInfo" placeholder="Enter email (required)" maxlength="254"/>
               </div>
 
               <div class="form-group mb-3" title="optional">
                 <label for="subsname" class="form-label form-label-sm">Name</label>
-                <input type="text" name="subsname" class="form-control form-control-sm" id="subsname" aria-describedby="subscribeNameInfo" placeholder="Name"/>
+                <input type="text" name="subsname" class="form-control form-control-sm" id="subsname" aria-describedby="subscribeNameInfo" placeholder="Name" maxlength="254"/>
                 <small id="subscribeNameInfo" class="form-text">
                 </small>
               </div>
 
               <div class="form-group mb-3">
                 <label for="subsnotes" class="form-label form-label-sm">Notes</label>
-                <textarea class="form-control form-control-sm" id="subsnotes" name="subsnotes" rows="3" placeholder="Leave a note for the team (be nice)"></textarea>
+                <textarea class="form-control form-control-sm" id="subsnotes" name="subsnotes" rows="3" placeholder="Leave a note for the team (be nice)" maxlength="2540"></textarea>
               </div>
             </form>
           </div>

@@ -166,9 +166,36 @@ def analysis():
 
 # TODO: make this a Blueprint
 @app.route('/api/')
+@app.route('/api/v0/')
 @login_required
 def api():
     return 'api v0'
+
+
+@app.route('/api/v0/<call_keyword>/', methods=['GET', 'POST', 'PUT', 'DELETE'])
+def api_call_keyword(call_keyword: str):
+    ck = call_keyword.strip().lower()
+    m = request.method
+    print(f'Keyword {m}-call to api: "{call_keyword}"')
+
+    # TODO: Make this its own class
+    r = {
+            'code': 0,
+            'err': [],  # error messages
+            'msg': [],  # general messages
+            'data': {},
+            }
+
+    if ck == 'subscribe' and request.args:
+        print('subscribe args:', request.args)
+        subsemail = str(request.args.get('subsemail')).strip()
+        subsname = str(request.args.get('subsname')).strip()
+        subsnotes = str(request.args.get('subsnotes')).strip()
+        if len(subsemail) > 254:
+            flash(f'Email address "{subsemail}" exceeds max character length of 254', 'danger')
+            #return redirect(url_for('
+    
+    return r
 
 
 @app.route('/about/')
