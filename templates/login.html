@@ -7,7 +7,7 @@
 
   {%- else %}
   {#- No user yet #}
-  <form method="POST" {% if r %}class="was-validated"{% else %}class=""{% endif %}>
+  <form method="POST">
     <div class="form-group">
       <legend>Login Information&colon;</legend>
       <div class="form-floating mb-4">
@@ -20,7 +20,7 @@
       </div>
       <input type="submit" value="Submit" class="btn btn-primary float-end">
       {%- if r %}
-      <small id="feedback" class="form-text invalid-feedback">Invalid username/password</small>
+      <small id="feedback" class="invalid-feedback">Invalid username/password</small>
       {%- endif %}
     </div>
   </form>

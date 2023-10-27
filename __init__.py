@@ -19,10 +19,12 @@ import time
 import random
 
 from flask import Flask, flash, redirect, render_template, request, session, g
-from flask import send_from_directory, url_for
+from flask import send_from_directory, url_for, abort
 from functools import wraps
 
 import bcrypt
+
+from . import api_conv
 
 def create_app():
     app = Flask(__name__)
@@ -41,6 +43,12 @@ app = create_app()
 app.config['DEBUG'] = True
 
 logger = app.logger
+
+formatter = logging.Formatter('%(name)s:%(levelname)s:%(asctime)s - %(message)s')
+fh = logging.FileHandler('/var/log/cuberubrics/rprime.log')
+fh.setLevel(logging.INFO)
+fh.setFormatter(formatter)
+logger.addHandler(fh)
 
 # https://flask.palletsprojects.com/en/3.0.x/patterns/viewdecorators/
 def login_required(f):
@@ -85,7 +93,7 @@ def load_logged_in_user():
 def index():
     print(request.headers)
     if 'username' in session:
-        print('CubeRubrics User:', session['username'])
+        username = session['username']
     else:
         print('CubeRubrics User: NOT LOGGED IN')
 
@@ -98,64 +106,130 @@ def check_login(username: str, pw_plain: str):
 
     pw_stored = db.get_db().hget(uk, 'pw')
     if pw_stored is None:
-        pw_stored = b''
-        s = b''
+        logger.warning(f'No password found for username "{username}"')
+        time.sleep(0.01)
+        return False
+
     else:
         s = db.get_db().hget(uk, 's')
-
-    pw = bcrypt.hashpw(pw_b, s)
-    return pw == pw_stored
+        pw = bcrypt.hashpw(pw_b, s)
+        return pw == pw_stored
 
 @app.route('/login/', methods=['GET', 'POST', 'PUT'])
 def login():
     vali = None
     if request.method == 'POST':
-        username = str(request.form.get('username')).strip().lower()
-        # FIXME: Filter out any non-standard characters
-
+        # TODO: move all of this to WTForms
+        username = str(request.form.get('username')).strip()
         pw_raw = request.form.get('password')
-        if check_login(username, pw_raw):
-            print('Valid credentials for', username)
-            session['username'] = username
-            db.get_db().hset(f'user:{username}', 'lastlogin', time.time())
-            if request.args:
-                next_url = request.args.get('next')
-                if next_url:
-                    print('Continuing to next link:', next_url)
-                    return redirect(request.args.get('next'))
+
+        vali = {'username': username, 'password': pw_raw}
+
+        # FIXME: Not a longterm solution to getting DOS'd 
+        time.sleep(0.1)
+
+        # FIXME: Filter out any non-standard characters
+        if len(username) < 3:
+            flash(f'Usernames must be at least 3 (valid) characters long', 'warning')
+
+        else:
+            if check_login(username, pw_raw):
+                logger.info('Valid credentials for', username)
+                flash(f'Now logged in as {username}. Hello!', 'success')
+                session['username'] = username
+                db.get_db().hset(f'user:{username}', 'lastlogin', time.time())
+                if request.args:
+                    next_url = request.args.get('next')
+                    if next_url:
+                        print('Continuing to next link:', next_url)
+                        return redirect(request.args.get('next'))
+                    else:
+                        print('No next link, sending to /')
+                        return redirect(url_for('index'))
                 else:
-                    print('No next link, sending to /')
                     return redirect(url_for('index'))
             else:
-                return redirect(url_for('index'))
-        else:
-            print('invalid credentials for', username)
-            vali = {'username': username, 'password': pw_raw}
+                print('invalid credentials for', username)
 
     return render_template('login.html', r=vali)
 
 @app.route('/logout/')
-@login_required
 def logout():
-    username = session['username']
+    username = session.get('username')
+    if username is None:
+        flash('You were not logged in', 'info')
+        return redirect(url_for('index'))
+
     uk = f'user:{username}'
-    print('Logging out', username)
-    print(g.user)
     db.get_db().hset(uk, 'lastlogout', time.time())
     session.clear()
+    flash(f'Logged out from {username}. Bye!', 'success')
+
     return redirect(url_for('index'))
 
-@app.route('/analysis/', methods=['GET', 'POST', 'PUT', 'DELETE'])
+@app.route('/analysis/')
 def analysis():
     return render_template('analysis.html')
 
 
+# TODO: make this a Blueprint
 @app.route('/api/')
-@login_required
+@app.route('/api/v0/', methods=['GET', 'PUT', 'POST', 'DELETE'])
 def api():
-    return 'api v0'
+    jdat = request.get_json()
+    time.sleep(0.01)
+    
+    r = {'status': 0}
+    if jdat.get('query') is None:
+        abort(400, 'Query required')
+
+    q = str(jdat['query']).strip().lower()
+    #print('JSON data:')
+    #print(jdat.get('Data'))
+
+    if q == 'subscribe':
+        qdat = jdat.get('data')
+        if qdat is None:
+            r['err'] = 'Data is required'
+            r['status'] = -1
+        try:
+            subscriber = api_conv.process_subscriber(
+                qdat.get('email'),
+                qdat.get('name'),
+                qdat.get('notes')
+                )
+
+        except Exception as e:
+            logger.warning(f'Subscriber process exception: {e}')
+            subscriber = None
+            #abort(400, f'Error in data: {e}')
+            r['err'] = f'{e}'
+            r['status'] = -2
+            return r
+
+        em = subscriber['email']
+        s_log = {}
+        for k, v in subscriber.items():
+            if k in ('email', 'name', 'notes'):
+                s_log[k] = v
+
+        ydat = yaml.safe_dump(s_log, explicit_start=True, explicit_end=True)
+        logger.info(f'Valid subscriber data received:\n{ydat}')
+        store_res = db.store_subscriber(subscriber)
+        if store_res == 0:
+            # duplicate email
+            logger.info(f'Duplicate subscriber email provided: "{em}"')
+
+        else:
+            logger.info(f'New subscriber: "{em}"')
+
+        r['status'] = 1
+
+    return r
+
 
 
 @app.route('/about/')
 def about():
     return render_template('about.html')
+

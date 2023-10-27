@@ -58,6 +58,34 @@ def init_db():
     print('\t* Created new admin account with password:', pw_plain)
 
 
+def store_subscriber(subscriber: dict):
+    """
+    Temporary measure to handle the subscriber page only
+    """
+    em = subscriber['email']
+    store_db = get_db()
+    bprev_emails = store_db.lrange('subscribers', 0, -1)
+    prev_emails = [ x.decode() for x in bprev_emails ]
+    print(prev_emails)
+    if em in prev_emails:
+        # Already subscribed, but we don't need to inform the user of
+        # that, no reason to disclose subscribers
+        return 0
+
+    else:
+        store_db.lpush('subscribers', em)
+
+    skey = f'subscriber:{em}'
+    subscriber['id'] = store_db.llen('subscribers')
+    results = {}
+    for k, v in subscriber.items():
+        # store hash unless already exists. No overwriting!
+        rk = store_db.hsetnx(skey, k, v)
+        print(rk)
+
+    return 1
+
+
 @click.command('init-db')
 def init_db_command():
     """Clear the existing data and create new tables."""
