@@ -64,7 +64,7 @@
     {%- block navbar %}
     <nav class="navbar navbar-expand-md bg-body-tertiary">
       <div class="container-fluid">
-        <!-- brand/logo -->
+        <!-- logo -->
         <a class="navbar-brand abs" href="/" title="Cube Rubrics - Home">
           <img src="/static/img/logo.png" style="max-height: 50px; max-width:500px;" alt="Cube Rubrics logo"/>
         </a>
@@ -79,7 +79,7 @@
           <ul class="navbar-nav text-center">
             {% block navleft %}
             <li class="nav-item">
-              <a class="nav-link" href="/analysis" title="Study scrambles, solutions and algorithms">Analysis</a>
+              <a class="nav-link disabled" {#href="/analysis"#} title="Coming soon!">Analysis</a>
             </li>
             <li class="nav-item">
               <a class="nav-link" href="/about" title="Cube Rubrics information and contacts">About</a>
@@ -100,6 +100,11 @@
               <a class="nav-link disabled" href="/feed.xml" disabled><i class="bi bi-rss"></i></a>
             </li>
 
+            <!-- Github -->
+            <li class="nav-item" title="Visit this site on github">
+              <a href="https://github.com/CubeRubrics/rprime" class="nav-link"><i class="bi bi-github"></i></a>
+            </li>
+
             <!-- Subscription button -->
             <li class="nav-item">
               {%- if session['subscriber'] %}
@@ -114,6 +119,7 @@
         </div>
       </div>
     </nav>
+
 
     <!-- Subsription modal -->
     <div class="modal fade" id="subscriptionModal" tabindex="-1" aria-hidden="true">

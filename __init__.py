@@ -170,7 +170,9 @@ def logout():
 
 @app.route('/analysis/')
 def analysis():
-    return render_template('analysis.html')
+    #return render_template('analysis.html')
+    flash('Analysis coming soon!', 'secondary')
+    return redirect(url_for('index'))
 
 
 # TODO: make this a Blueprint
