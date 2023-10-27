@@ -37,7 +37,6 @@
           }
       }
 
-      {# ensure footer stays at bottom #}
       html {
           min-height: 100%;
       }
@@ -52,6 +51,12 @@
         display: inline-block;
       }
 
+      /* narrow container */
+      @media (min-width: 1200px) {
+        .container{
+          max-width: 970px;
+          }
+      }
     </style>
     {%- endblock styling %}
     {%- endblock head %}
