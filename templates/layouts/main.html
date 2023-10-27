@@ -51,12 +51,14 @@
         content: '\2212 ';
         display: inline-block;
       }
+
     </style>
     {%- endblock styling %}
     {%- endblock head %}
   </head>
 
   <body>
+
     {%- block body %}
     <!-- navbar -->
     {%- block navbar %}
@@ -116,7 +118,15 @@
             <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
           </div>
           <div class="modal-body">
-            <form action="/api/v0" method="PUT" id="subscriptionForm" onsubmit="api_form_submit(event);">
+            <form action="/api/v0" method="PUT" id="subscriptionForm" 
+                    {#- Does javascript submission #}
+                    onsubmit="api_form_submit(event);"
+                    {#- major type - required #}
+                    data-telos="subscribe"
+                    {#- subtype #}
+                    data-techne=""
+                    {#- session id - someday #}
+                    data-xenia="70b91422-7468-11ee-b962-0242ac120002">
               <div class="form-group mb-3" title="required">
                 <p id="subscribeEmailInfo" class="form-text">
                   Subscriptions are free and any information shared with
@@ -125,14 +135,14 @@
                   When accounts become available, our subscribers will have 
                   first access.
                 </p>
-                <label for="subsemail" class="form-label">Email</label>
+                <label for="subs-email" class="form-label">Email</label>
                 <small id="subscEmailRequired" class="form-text"><i class="bi bi-asterisk"></i></small>
-                <input type="email" name="subsemail" class="form-control" id="subsemail" aria-describedby="subscribeEmailInfo" placeholder="Enter email (required)" maxlength="254"/>
+                <input type="email" name="subs-email" class="form-control" id="subs-email" aria-describedby="subscribeEmailInfo" placeholder="Enter email (required)" maxlength="254" required/>
               </div>
 
               <div class="form-group mb-3" title="optional">
-                <label for="subsname" class="form-label form-label-sm">Name</label>
-                <input type="text" name="subsname" class="form-control form-control-sm" id="subsname" aria-describedby="subscribeNameInfo" placeholder="Name" maxlength="254"/>
+                <label for="subs-name" class="form-label form-label-sm">Name</label>
+                <input type="text" name="subs-name" class="form-control form-control-sm" id="subs-name" aria-describedby="subscribeNameInfo" placeholder="Name" maxlength="254"/>
                 <small id="subscribeNameInfo" class="form-text">
                 </small>
               </div>
@@ -216,6 +226,13 @@
       {%- endblock footer %}
     </footer>
     {%- endblock body %}
+
+    <!-- hidden, javascript copy-able elements -->
+    <div style="display: none;" id="cr-constructors">
+      <div class="spinner-border" role="status" id="generic-spinner">
+        <span class="visually-hidden">Loading...</span>
+      </div>
+    </div>
 
     <script>
       var page_modals = load_modals();

@@ -24,6 +24,8 @@ from functools import wraps
 
 import bcrypt
 
+DUMMY_XENIA = '70b91422-7468-11ee-b962-0242ac120002'
+
 def create_app():
     app = Flask(__name__)
 
@@ -166,36 +168,29 @@ def analysis():
 
 # TODO: make this a Blueprint
 @app.route('/api/')
-@app.route('/api/v0/')
-@login_required
+@app.route('/api/v0/', methods=['GET', 'PUT', 'POST', 'DELETE'])
 def api():
-    return 'api v0'
-
-
-@app.route('/api/v0/<call_keyword>/', methods=['GET', 'POST', 'PUT', 'DELETE'])
-def api_call_keyword(call_keyword: str):
-    ck = call_keyword.strip().lower()
-    m = request.method
-    print(f'Keyword {m}-call to api: "{call_keyword}"')
-
-    # TODO: Make this its own class
-    r = {
-            'code': 0,
-            'err': [],  # error messages
-            'msg': [],  # general messages
-            'data': {},
-            }
-
-    if ck == 'subscribe' and request.args:
-        print('subscribe args:', request.args)
-        subsemail = str(request.args.get('subsemail')).strip()
-        subsname = str(request.args.get('subsname')).strip()
-        subsnotes = str(request.args.get('subsnotes')).strip()
-        if len(subsemail) > 254:
-            flash(f'Email address "{subsemail}" exceeds max character length of 254', 'danger')
-            #return redirect(url_for('
+    jdat = request.get_json()
+    time.sleep(0.01)
     
+    r = {'status': 0, 'msgs': []}
+
+    if request.method == 'PUT':
+        print('JSON data:')
+        print(jdat)
+
+        if jdat.get('telos') is None:
+            # require telos! 
+            r['msgs'].append('Invalid reasoning: teleology')
+            r['status'] -= 1
+    else:
+        pass
+
+    if len(r['msgs']) < 1:
+        del r['msgs']
+
     return r
+
 
 
 @app.route('/about/')
