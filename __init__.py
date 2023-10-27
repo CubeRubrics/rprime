@@ -174,15 +174,13 @@ def api():
     time.sleep(0.01)
     
     r = {'status': 0, 'msgs': []}
+    if jdat.get('Query') is None:
+        abort(400, 'Query required')
 
     if request.method == 'PUT':
         print('JSON data:')
-        print(jdat)
+        print(jdat.get('Data'))
 
-        if jdat.get('telos') is None:
-            # require telos! 
-            r['msgs'].append('Invalid reasoning: teleology')
-            r['status'] -= 1
     else:
         pass
 
