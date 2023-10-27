@@ -292,17 +292,9 @@ function api_form_submit(e) {
 
     console.log('API form submitted!', e);
     let r = api_form_process(f.elements)
-    let ts = new Date().getTime()
     let d = {
-        timestamp: ts,
-        client: {  // optional meta data about the client
-            platform: navigator.platform,
-            product: navigator.product,
-            version: navigator.productSub,
-            vendor: navigator.vendor,
-        },
-        Query: f.dataset.query,  // instructions to the server
-        Data: r,  // data to upload
+        query: f.dataset.query,  // instructions to the server
+        data: r,  // data to upload
     }
     put_data(e.srcElement.action, d).then((data) => {
         console.log(data); // JSON data parsed by `data.json()` call

@@ -17,14 +17,10 @@ import logging
 import datetime
 import time
 import random
-import redis
 
 EMAIL_MAX_CHARS = 254
 
-def store_subscriber(db: redis.Redis, subscriber: dict):
-
-
-def validate_subscriber(email: str, name=None, notes=None):
+def process_subscriber(email: str, name=None, notes=None):
     ts = time.time()
     dt = datetime.datetime.utcnow()
 
@@ -54,5 +50,6 @@ def validate_subscriber(email: str, name=None, notes=None):
 
     d['t'] = ts
     d['dt'] = dt
+
     return d.copy()
 

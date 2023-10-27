@@ -24,7 +24,6 @@ from functools import wraps
 
 import bcrypt
 
-DUMMY_XENIA = '70b91422-7468-11ee-b962-0242ac120002'
 
 def create_app():
     app = Flask(__name__)
@@ -174,17 +173,15 @@ def api():
     time.sleep(0.01)
     
     r = {'status': 0, 'msgs': []}
-    if jdat.get('Query') is None:
+    if jdat.get('query') is None:
         abort(400, 'Query required')
 
-    if request.method in ['PUT', 'POST']:
-        print('JSON data:')
-        print(jdat.get('Data'))
+    q = str(jdat['query']).strip().lower()
+    #print('JSON data:')
+    #print(jdat.get('Data'))
 
-        if jdat['Query']
+    if q == 'query':
 
-    else:
-        pass
 
     if len(r['msgs']) < 1:
         del r['msgs']
