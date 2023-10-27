@@ -19,11 +19,12 @@ import time
 import random
 
 from flask import Flask, flash, redirect, render_template, request, session, g
-from flask import send_from_directory, url_for
+from flask import send_from_directory, url_for, abort
 from functools import wraps
 
 import bcrypt
 
+from . import api
 
 def create_app():
     app = Flask(__name__)
@@ -42,6 +43,12 @@ app = create_app()
 app.config['DEBUG'] = True
 
 logger = app.logger
+
+formatter = logging.Formatter('%(levelname)s:%(name)s:%(asctime)s - %(message)s')
+fh = logging.FileHandler('/var/log/cuberubrics/rprime.log')
+fh.setLevel(logging.INFO)
+fh.setFormatter(formatter)
+logger.addHandler(fh)
 
 # https://flask.palletsprojects.com/en/3.0.x/patterns/viewdecorators/
 def login_required(f):
@@ -127,7 +134,7 @@ def login():
 
         else:
             if check_login(username, pw_raw):
-                print('Valid credentials for', username)
+                logger.info('Valid credentials for', username)
                 flash(f'Now logged in as {username}. Hello!', 'success')
                 session['username'] = username
                 db.get_db().hset(f'user:{username}', 'lastlogin', time.time())
@@ -180,7 +187,26 @@ def api():
     #print('JSON data:')
     #print(jdat.get('Data'))
 
-    if q == 'query':
+    if q == 'subscribe':
+        qdat = jdat.get('data')
+        if qdat is None:
+            abort(400, 'Data required')
+
+        try:
+            subscriber = api.process_subscriber(
+                qdat.get('email'),
+                qdat.get('name'),
+                qdat.get('notes')
+                )
+
+        except Exception as e:
+            logger.warning(f'Subscriber process exception: {e}')
+            subscriber = None
+            abort(400, f'Error in data: {e}')
+
+        ydat = yaml.safe_dump(subscriber, explicit_start=True)
+        print(ydat)
+        store = db.store_subscriber(subscriber)
 
 
     if len(r['msgs']) < 1:

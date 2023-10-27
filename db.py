@@ -58,6 +58,22 @@ def init_db():
     print('\t* Created new admin account with password:', pw_plain)
 
 
+def store_subscriber(subscriber: dict):
+    """
+    Temporary measure to handle the subscriber page only
+    """
+    em = subscriber['email']
+    store_db = get_db()
+    prev_emails = store_db.lrange('subscribers', 0, -1)
+    print(prev_emails)
+    if em in [ x for x in prev_emails ]:
+        # Already subscribed, but we don't need to inform the user of
+        # that, no reason to disclose subscribers
+        return 0
+
+    else:
+        store_db.lpush('subscribers', em)
+
 @click.command('init-db')
 def init_db_command():
     """Clear the existing data and create new tables."""

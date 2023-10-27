@@ -23,10 +23,15 @@ EMAIL_MAX_CHARS = 254
 def process_subscriber(email: str, name=None, notes=None):
     ts = time.time()
     dt = datetime.datetime.utcnow()
+    if email is None:
+        raise Exception('Email address is required')
 
     em = str(email).strip().lower()
     if len(em) > EMAIL_MAX_CHARS:
         raise Exception(f'Given email exceeds maximum allowed characters {EMAIL_MAX_CHARS}')
+
+    elif len(em) <= 3:
+        raise Exception(f'Given email address "{em}" too short')
 
     d = {
             'email': em,
@@ -37,6 +42,10 @@ def process_subscriber(email: str, name=None, notes=None):
         if len(name) > EMAIL_MAX_CHARS:
             raise Exception(f'Given name exceeds maximum allowed characters {EMAIL_MAX_CHARS}')
 
+        elif len(name) < 1:
+            # that's blank too
+            pass
+
         else:
             d['name'] = name
 
@@ -44,6 +53,9 @@ def process_subscriber(email: str, name=None, notes=None):
         d['notes'] = str(notes).strip()
         if len(notes) > EMAIL_MAX_CHARS * 10:
             raise Exception(f'Notes cannot exceed {EMAIL_MAX_CHARS * 10}')
+        elif len(notes) < 1:
+            # that's blank
+            pass
 
         else:
             d['notes'] = notes
