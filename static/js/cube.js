@@ -71,7 +71,8 @@ function subscription_modal() {
     })
 
     var subsModal = new bootstrap.Modal(subsEl, {
-      backdrop: 'static'
+      backdrop: true,
+      keyboard: true,
     })
     return subsModal;
 }
@@ -165,8 +166,8 @@ function api_form_process(f) {
                         let k = e.name.split('-')[1]
 
                         let v = e.value.trim()
-                        if (e.hasAttribute('maxlength'))
-                            v = v.substr(0, e.maxlength)
+                        //if (e.hasAttribute('maxlength'))
+                        //    v = v.substr(0, e.maxlength)
                         dat[k] = v;
                     }
                 }
@@ -318,16 +319,34 @@ function api_form_submit(e) {
         }
         setTimeout(function () {
             yay.self_destruct();
-        }, 2500);
+        }, 3000);
 
         // Clear the timeout and unlock
         clearTimeout(f.locked_timeout)
         unlock_form(s, f)
 
         if (data) {
-            console.log(data); // JSON data parsed by `data.json()` call
-            yay.className = 'text-success mb-1'
-            yay.innerHTML = 'success!'
+            if (data.status) {
+                // NOTE: the status key should always be set
+                if (data.status >= 0) {
+                    yay.className = 'text-success mb-1'
+                    yay.innerHTML = 'success!'
+                } else {
+                    // setting to warning because the data made it back
+                    yay.className = 'text-warning mb-1'
+                    let status_err;
+                    if (data.err) {
+                        status_err = data.err;
+                    } else {
+                        status_err = 'processing error'
+                    }
+                    yay.innerHTML = status_err
+                }
+            } else {
+                // no status at all?
+                yay.className = 'text-secondary mb-1'
+                yay.innerHTML = 'hello'  // how I hate those filthy neutrals
+            }
         } else {
             console.error('Data could not be retrieved from api')
             yay.className = 'text-danger mb-1'
