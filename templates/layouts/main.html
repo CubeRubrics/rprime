@@ -102,7 +102,13 @@
 
             <!-- Subscription button -->
             <li class="nav-item">
-              <button class="btn btn-outline-info" type="button" title="Subscribe to our mailing list for updates!" data-bs-toggle="modal" data-bs-target="#subscriptionModal">Subscribe</button>
+              {%- if session['subscriber'] %}
+              <!-- subscribed as {{ session['subscriber'] }} -->
+              <button class="btn btn-dark" type="button" title="Subscribed from {{ session['subscriber'] }}" data-bs-toggle="modal" data-bs-target="#subscriptionModal">Subscribe</button>
+              {%- else %}
+              <!-- not subscribed -->
+              <button class="btn btn-light" type="button" title="Subscribe to our mailing list for updates!" data-bs-toggle="modal" data-bs-target="#subscriptionModal">Subscribe</button>
+              {%- endif %}
             </li>
           </ul>
         </div>
@@ -134,6 +140,9 @@
                 <label for="subs-email" class="form-label">Email</label>
                 <small id="subscEmailRequired" class="form-text"><i class="bi bi-asterisk"></i></small>
                 <input type="email" name="subs-email" class="form-control" id="subs-email" aria-describedby="subscribeEmailInfo" placeholder="Enter email (required)" maxlength="254" required/>
+                {%- if session['subscriber'] %}
+                <small class="form-text mb-1 text-success text-end">Subscribed as {{ session['subscriber'] }} &check;</i></small>
+                {%- endif %}
               </div>
 
               <div class="form-group mb-3" title="optional">

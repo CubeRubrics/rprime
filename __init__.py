@@ -40,7 +40,8 @@ def create_app():
     return app
 
 app = create_app()
-app.config['DEBUG'] = True
+# NOTE: Activate for debug mode
+#app.config['DEBUG'] = True
 
 logger = app.logger
 
@@ -222,6 +223,8 @@ def api():
 
         else:
             logger.info(f'New subscriber: "{em}"')
+
+        session['subscriber'] = em
 
         r['status'] = 1
 
