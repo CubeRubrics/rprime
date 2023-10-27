@@ -24,7 +24,7 @@ from functools import wraps
 
 import bcrypt
 
-from . import api
+from . import api_conv
 
 def create_app():
     app = Flask(__name__)
@@ -44,7 +44,7 @@ app.config['DEBUG'] = True
 
 logger = app.logger
 
-formatter = logging.Formatter('%(levelname)s:%(name)s:%(asctime)s - %(message)s')
+formatter = logging.Formatter('%(name)s:%(levelname)s:%(asctime)s - %(message)s')
 fh = logging.FileHandler('/var/log/cuberubrics/rprime.log')
 fh.setLevel(logging.INFO)
 fh.setFormatter(formatter)
@@ -179,7 +179,7 @@ def api():
     jdat = request.get_json()
     time.sleep(0.01)
     
-    r = {'status': 0, 'msgs': []}
+    r = {'status': 0}
     if jdat.get('query') is None:
         abort(400, 'Query required')
 
@@ -190,10 +190,10 @@ def api():
     if q == 'subscribe':
         qdat = jdat.get('data')
         if qdat is None:
-            abort(400, 'Data required')
-
+            r['err'] = 'Data is required'
+            r['status'] = -1
         try:
-            subscriber = api.process_subscriber(
+            subscriber = api_conv.process_subscriber(
                 qdat.get('email'),
                 qdat.get('name'),
                 qdat.get('notes')
@@ -202,15 +202,28 @@ def api():
         except Exception as e:
             logger.warning(f'Subscriber process exception: {e}')
             subscriber = None
-            abort(400, f'Error in data: {e}')
+            #abort(400, f'Error in data: {e}')
+            r['err'] = f'{e}'
+            r['status'] = -2
+            return r
 
-        ydat = yaml.safe_dump(subscriber, explicit_start=True)
-        print(ydat)
-        store = db.store_subscriber(subscriber)
+        em = subscriber['email']
+        s_log = {}
+        for k, v in subscriber.items():
+            if k in ('email', 'name', 'notes'):
+                s_log[k] = v
 
+        ydat = yaml.safe_dump(s_log, explicit_start=True, explicit_end=True)
+        logger.info(f'Valid subscriber data received:\n{ydat}')
+        store_res = db.store_subscriber(subscriber)
+        if store_res == 0:
+            # duplicate email
+            logger.info(f'Duplicate subscriber email provided: "{em}"')
 
-    if len(r['msgs']) < 1:
-        del r['msgs']
+        else:
+            logger.info(f'New subscriber: "{em}"')
+
+        r['status'] = 1
 
     return r
 

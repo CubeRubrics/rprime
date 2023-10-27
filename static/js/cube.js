@@ -8,7 +8,7 @@
 var cube_config = {
     spinners: 0,
     messages: 0,
-    api_timeout_delay: 1500,
+    api_timeout_delay: 15000,
 };
 
 
@@ -260,26 +260,39 @@ function lock_form(s, f) {
     s.spinner = spin
 
     // Create a timeout to unlock the form
+    // TODO: Make a special function to indicate a proper
+    // timeout instead of success or failure
     f.locked_timeout = setTimeout(unlock_form, cube_config.api_timeout_delay, s, f)
 
     return 0;
 }
 
 
-async function put_data(url = "", data = {}) {
+async function put_data(url = "", data = {}, f) {
     console.log('Uploading to ', url, ':\n\t', data)
-    const response = await fetch(url, {
-        method: "PUT", 
-        mode: "cors", // no-cors, *cors, same-origin
-        cache: "no-cache", // *default, no-cache, reload, force-cache, only-if-cached
-        headers: {
-          "Content-Type": "application/json",
-        },
-        referrerPolicy: "origin", 
-        body: JSON.stringify(data), // body data type must match "Content-Type" header
-      });
-    // TODO: handle errors and stuff better
-    return response.json();
+    let j;
+    try {
+        const response = await fetch(url, {
+            method: "PUT",
+            mode: "cors", // no-cors, *cors, same-origin
+            cache: "no-cache", // *default, no-cache, reload, force-cache, only-if-cached
+            headers: {
+            "Content-Type": "application/json",
+            },
+            referrerPolicy: "origin",
+            body: JSON.stringify(data), // body data type must match "Content-Type" header
+        });
+        // TODO: handle errors and stuff better
+        j = await response.json();
+        console.log('JSON response: ', j);
+        f.response = j
+    } catch (error) {
+        // Handle the error
+        console.error('An error occurred while putting data: ', error);
+        f.dataset.result = 'error'
+        f.response = error
+    }
+    return j;
 }
 
 
@@ -296,9 +309,32 @@ function api_form_submit(e) {
         query: f.dataset.query,  // instructions to the server
         data: r,  // data to upload
     }
-    put_data(e.srcElement.action, d).then((data) => {
-        console.log(data); // JSON data parsed by `data.json()` call
+
+    put_data(e.srcElement.action, d, f).then((data) => {
+        let yay = document.createElement('small')
+        yay.self_destruct = function () {
+            console.log('Goodbye from ', this);
+            this.remove();
+        }
+        setTimeout(function () {
+            yay.self_destruct();
+        }, 2500);
+
+        // Clear the timeout and unlock
+        clearTimeout(f.locked_timeout)
+        unlock_form(s, f)
+
+        if (data) {
+            console.log(data); // JSON data parsed by `data.json()` call
+            yay.className = 'text-success mb-1'
+            yay.innerHTML = 'success!'
+        } else {
+            console.error('Data could not be retrieved from api')
+            yay.className = 'text-danger mb-1'
+            yay.innerHTML = 'error'
+        }
+        let spar = s.parentElement;
+        spar.insertBefore(yay, s);
     });
-    console.log(r);
     return 0;
 }

@@ -22,7 +22,6 @@ EMAIL_MAX_CHARS = 254
 
 def process_subscriber(email: str, name=None, notes=None):
     ts = time.time()
-    dt = datetime.datetime.utcnow()
     if email is None:
         raise Exception('Email address is required')
 
@@ -61,7 +60,5 @@ def process_subscriber(email: str, name=None, notes=None):
             d['notes'] = notes
 
     d['t'] = ts
-    d['dt'] = dt
-
     return d.copy()
 
