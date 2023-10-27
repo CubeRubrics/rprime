@@ -34,10 +34,15 @@
         </p>
 
         <p class="lead">
+        {%- if session['subscriber'] %}
+        <!-- already subscribed as {{ session['subscriber'] }} -->
+        {%- else %}
+        <a data-bs-toggle="modal" data-bs-target="#subscriptionModal" title="Just click here">
         If any of this sounds interesting, please consider
-        {#- TODO: Link this to the subscription modal #}
-        Subscribing
-        to our mailing list for updates! We are very open to
+        subscribing to our mailing list for updates!
+        </a>
+        {%- endif %}
+        We are very open to
         <a href="mailto:crystal@cuberubrics.org">feedback</a> from interested
         community members, either by
         <a href="mailto:team@cuberubrics.org">email</a>
