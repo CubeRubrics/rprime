@@ -301,11 +301,7 @@ function api_form_submit(e) {
             version: navigator.productSub,
             vendor: navigator.vendor,
         },
-        Query: {  // instructions to the server
-            telos: f.dataset.telos,
-            techne: f.dataset.techne,
-            xenia: f.dataset.xenia,
-        },
+        Query: f.dataset.query,  // instructions to the server
         Data: r,  // data to upload
     }
     put_data(e.srcElement.action, d).then((data) => {

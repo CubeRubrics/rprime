@@ -161,7 +161,7 @@ def logout():
 
     return redirect(url_for('index'))
 
-@app.route('/analysis/', methods=['GET', 'POST', 'PUT', 'DELETE'])
+@app.route('/analysis/')
 def analysis():
     return render_template('analysis.html')
 
@@ -177,9 +177,11 @@ def api():
     if jdat.get('Query') is None:
         abort(400, 'Query required')
 
-    if request.method == 'PUT':
+    if request.method in ['PUT', 'POST']:
         print('JSON data:')
         print(jdat.get('Data'))
+
+        if jdat['Query']
 
     else:
         pass
