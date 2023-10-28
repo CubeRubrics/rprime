@@ -20,6 +20,8 @@ import random
 
 from flask import Flask, flash, redirect, render_template, request, session, g
 from flask import send_from_directory, url_for, abort
+from werkzeug.middleware.proxy_fix import ProxyFix
+
 from functools import wraps
 
 import bcrypt
@@ -30,6 +32,9 @@ def create_app():
     app = Flask(__name__)
 
     app.config.from_pyfile('config.py')
+    app.wsgi_app = ProxyFix(
+        app.wsgi_app, x_for=1, x_proto=1, x_host=1, x_prefix=1
+    )
 
     @app.route('/favicon.ico')
     def favicon():
